@@ -1,0 +1,23 @@
+---
+- hosts: all
+  become: yes
+
+  tasks:
+  - name: OS & Distribution related info
+    debug:
+      var: '{{ item }}'
+    with_items:
+    - ansible_os_family
+    - ansible_distribution
+    - ansible_distribution_version
+    - ansible_distribution_major_version
+    - ansible_distribution_minor_version
+
+  - name: Install tools
+    package:
+      name: vim
+      state: present
+
+  - name: Install UHD
+    import_role:
+      name: b00ga.uhd

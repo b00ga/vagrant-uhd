@@ -1,0 +1,46 @@
+---
+- name: Get UHD version information
+  uri:
+    url: https://api.github.com/repos/EttusResearch/uhd/releases
+  register: uhd_gh_info
+
+- set_fact:
+   # First release that is not a prerelease
+    uhd_latest_release: "{{ uhd_gh_info.json | selectattr('prerelease','eq',false) | first }}"
+
+- debug:
+    msg: '{{ uhd_latest_release.tarball_url }}'
+
+- name: test
+  uri:
+    url: '{{ uhd_latest_release.tarball_url }}'
+    follow_redirects: all
+    method: HEAD
+  register: foo
+
+- debug:
+    var: foo
+
+- name: Create dl dir
+  become: yes
+  file:
+    path: /usr/local/downloads
+    state: directory
+    owner: '{{ uhd_user }}'
+
+- name: Fetch
+  get_url:
+    url: '{{ uhd_latest_release.tarball_url }}'
+    dest: '/usr/local/downloads/'
+    owner: '{{ uhd_user }}'
+  register: bar
+
+- debug:
+    var: bar
+
+- name: Filename
+  set_fact:
+    uhd_tarball: "{{ bar.dest | urlsplit('path') | basename }}"
+
+- debug:
+    var: uhd_tarball

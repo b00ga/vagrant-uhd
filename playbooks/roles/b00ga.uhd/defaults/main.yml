@@ -1,0 +1,2 @@
+---
+uhd_user: '{{ ansible_env.SUDO_USER or ansible_user_id }}'
